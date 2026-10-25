@@ -31,7 +31,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 TITLE = "Week 5 | The Model Detective Challenge"
 TABLE = "mac_week5_tutorial_attempts"
 LIMIT_MINUTES = 90
-st.set_page_config(page_title=TITLE, page_icon="model_detective_icon.png", layout="wide")
+st.set_page_config(page_title=TITLE, page_icon="model.png", layout="wide")
 st.markdown("""
 <style>
 .block-container {max-width:1100px;padding-top:1.7rem}
