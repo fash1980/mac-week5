@@ -19,6 +19,7 @@ from io import BytesIO
 from xml.sax.saxutils import escape
 
 import streamlit as st
+import streamlit.components.v1 as components
 from supabase import create_client
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -494,8 +495,8 @@ def save_control(qid, key):
 
 
 def render_tree(cutoff, hours):
-    st.html(f"""
-    <div style="padding:8px;background:#f5f9fb;border-radius:12px;max-width:620px">
+    components.html(f"""
+    <div style="padding:8px;background:#f5f9fb;border-radius:12px;max-width:620px;box-sizing:border-box">
     <svg viewBox="0 0 600 230" role="img" aria-label="Decision tree showing attendance and study hour thresholds"
          style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
     <g stroke="#9eb9c6" stroke-width="3" fill="none"><path d="M300 52L145 105M300 52L445 105M445 142L365 190M445 142L530 190"/></g>
@@ -513,20 +514,20 @@ def render_tree(cutoff, hours):
     <text x="386" y="87" fill="#475569" font-size="14">Yes</text>
     <text x="350" y="171" fill="#475569" font-size="13">No</text>
     <text x="505" y="171" fill="#475569" font-size="13">Yes</text>
-    </svg></div>""")
+    </svg></div>""", height=270, scrolling=False)
 
 
 def visual_card(svg_body, footer=""):
     """A self-contained SVG; its drawing changes when the Streamlit slider changes."""
-    st.html(f"""
+    components.html(f"""
     <div style="max-width:750px;padding:14px 18px;border:1px solid #d9e8e8;
-                border-radius:16px;background:#f7fbfc">
+                border-radius:16px;background:#f7fbfc;box-sizing:border-box">
       <svg viewBox="0 0 640 205" role="img" aria-label="Interactive experiment result"
            xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
       {svg_body}
       </svg>
       <div style="color:#476579;font:13px system-ui;margin-top:4px">{escape(str(footer))}</div>
-    </div>""")
+    </div>""", height=300, scrolling=False)
 
 
 def visual_text(x, y, value, size=16, color="#174659", anchor="middle"):
