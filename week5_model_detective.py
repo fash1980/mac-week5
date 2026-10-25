@@ -35,6 +35,10 @@ st.set_page_config(page_title=TITLE, page_icon="🧠", layout="wide")
 st.markdown("""
 <style>
 .block-container {max-width:1100px;padding-top:1.7rem}
+.teacher-question {font-size:1.34rem;line-height:1.65;font-weight:650;color:#153e54;
+  background:#f1f7fa;border-left:6px solid #197b91;padding:16px 20px;border-radius:10px;margin:14px 0 22px}
+.experiment-instruction {font-size:1.12rem;line-height:1.6;background:#edf7f3;
+  border-radius:10px;padding:12px 16px;margin:12px 0}
 .block-container, .block-container * { -webkit-user-select:none; user-select:none; }
 input, textarea { -webkit-user-select:text !important; user-select:text !important; }
 img, svg { -webkit-user-drag:none; user-drag:none; pointer-events:none; }
@@ -246,51 +250,51 @@ def questions_for(student_id: str):
 
     # Part B - model experiments. Sliders alter the visualised model, and the
     # student's answer is checked against the saved slider setting.
-    add("Interactive Decision Tree", "EXPERIMENT: Move the attendance split threshold. For the displayed student, which class does the updated tree predict?",
+    add("Interactive Decision Tree", "A student has a fixed attendance record and study hours. Explore the tree, then predict what happens when its attendance rule changes.",
         ["Pass", "Fail", "Unknown", "Regression"], None,
         "If attendance falls below the split, the prediction is Fail; otherwise study hours decide.",
         experiment="tree_cutoff", params={"attendance":r.choice([58,64,72,81]), "hours":r.choice([4,5,6]),"hours_min":4})
-    add("Interactive KNN", "EXPERIMENT: Change k (number of neighbours). Which class wins the currently displayed vote?",
+    add("Interactive KNN", "The closest classmates do not all have the same result. Change how many neighbours vote and check the predicted class.",
         ["Pass", "Fail", "Tie", "No prediction"], None,
         "Count Pass and Fail labels among only the first k neighbours.",
-        experiment="knn_k", params={"neighbours":[r.choice(["P","F"]) for _ in range(7)]})
-    add("Neural Network", "EXPERIMENT: Move the first weight. What does the ReLU output neuron produce at this setting?",
+        experiment="knn_k", params={"neighbours":r.choice([["P","F","F","P","P","P","P"],["F","P","P","F","F","F","F"]])})
+    add("Neural Network", "This neuron adds its weighted inputs and applies ReLU. Change the first weight and observe when the output switches on.",
         ["Positive activation", "Zero activation", "Always a probability", "Cannot calculate"], None,
         "The neuron computes z = 2w1 + 1(1) - 2. ReLU(z) is max(0,z).",
         experiment="neuron_weight")
-    add("Dropout", "EXPERIMENT: Increase/decrease the dropout rate. How many hidden neurons remain active in this illustrated pass?",
+    add("Dropout", "During training, dropout switches off some hidden neurons for one pass. Look at the ON/OFF units and work out how many remain available.",
         ["4", "5", "6", "7"], None,
         "This simplified illustration disables the selected proportion of 8 hidden units. Actual dropout masks are sampled randomly during training.",
         experiment="dropout")
-    add("Bagging & Bootstrap", "EXPERIMENT: Switch the bootstrap sample. What is the majority vote of its three trained learners?",
+    add("Bagging & Bootstrap", "Each bootstrap sample trains three trees. Compare the different samples and decide which class receives the majority of votes.",
         ["Pass", "Fail", "Tie", "No majority"], None,
         "Each resampled dataset can produce different independent learners; take the majority of their three labels.",
-        experiment="bagging_vote", params={"votes":[r.choice([["P","P","F"],["F","P","F"],["P","F","P"]]) for _ in range(3)]})
-    add("Boosting", "EXPERIMENT: Adjust the weight of learner A. Which label wins the weighted vote of A=Pass, B=Fail and C=Fail?",
+        experiment="bagging_vote", params={"votes":[["P","P","F"],["F","P","F"],["P","F","P"]]})
+    add("Boosting", "These learners do not have equal influence. Change learner A's weight and see whether its Pass vote can outweigh two Fail votes.",
         ["Pass", "Fail", "Tie", "No learner"], None,
         "Compare A's selected weight with B+C's total weight of 4.",
         experiment="boosting_weight")
-    add("Logistic Regression", "EXPERIMENT: Move the classification threshold. Which label is assigned to the fixed predicted probability?",
+    add("Logistic Regression", "The model gives one probability, but the cutoff is your decision. Explore how changing the cutoff changes the class label.",
         ["Pass", "Fail", "Clustering", "Numerical mark"], None,
         "The positive label is selected when the predicted probability is at least the threshold.",
         experiment="logistic_threshold", params={"prob":r.choice([0.48,0.58,0.62])})
-    add("Interactive Regression", "EXPERIMENT: Change the slope while attendance stays at 60%. In which range is the new predicted mark?",
+    add("Interactive Regression", "Watch the fitted line rotate as you change the slope. The attendance stays at 60%; only the predicted mark changes.",
         ["0–40", "41–60", "61–80", "Above 80"], None,
         "For this model, predicted mark = 15 + slope × 60.",
         experiment="regression_slope")
-    add("Cross-Validation", "EXPERIMENT: Change the number of folds k for 60 records. How many validation records are in one equally sized fold?",
+    add("Cross-Validation", "We have 60 records to divide into equal folds. Change k and work out how many records go into the validation fold.",
         ["10", "12", "15", "20"], None,
         "Each validation fold has 60/k records when the folds are evenly sized.",
         experiment="cv_fold")
-    add("Gradient Descent", "EXPERIMENT: Adjust learning rate. Does ONE gradient step increase or decrease the toy loss?",
+    add("Gradient Descent", "The model takes one gradient-descent step from the same starting point. Try different learning rates and compare the loss before and after.",
         ["Loss decreases", "Loss increases", "No change", "Cannot be determined"], None,
         "With L=(w−2)² at w=4, gradient is 4. New w=4−4×learning_rate.",
         experiment="gradient_lr")
-    add("Confusion Matrix", "EXPERIMENT: Move the decision threshold and inspect the new TP/FP counts. Which precision range applies?",
+    add("Confusion Matrix", "A change in classification threshold changes the true and false positives. Use the displayed counts to decide the precision range.",
         ["Below 70%", "70–79%", "80% or above", "Not defined"], None,
         "Precision = TP/(TP+FP), calculated from the displayed counts.",
         experiment="precision_threshold")
-    add("Association Rules", "EXPERIMENT: Move minimum support. A rule has support 25%. Does the rule pass the new threshold?",
+    add("Association Rules", "This rule occurs in 25% of the records. Adjust the required minimum support and decide whether the rule is kept.",
         ["Retained", "Filtered out", "Confidence becomes zero", "Lift becomes zero"], None,
         "Keep a rule if its support meets or exceeds the chosen minimum support.",
         experiment="support_threshold")
@@ -377,7 +381,81 @@ EXPERIMENT_CONTROLS = {
 
 
 def answer_value(answer):
-    return answer.get("value", "") if isinstance(answer, dict) else answer
+    if isinstance(answer, dict):
+        if "parts" in answer:
+            return "; ".join(f"{k}: {v}" for k, v in answer["parts"].items())
+        return answer.get("value", "")
+    return answer
+
+
+def experiment_scenarios(question):
+    """Three fixed, reproducible scenarios per experiment; slider is for exploration."""
+    exp = question["experiment"]
+    prm = question.get("params") or {}
+    scenarios = {
+        "tree_cutoff": [50, 85, 65 if prm.get("attendance", 60) < 70 else 75],
+        "knn_k": [1, 3, 7],
+        "neuron_weight": [-1, 1, 3],
+        "dropout": [1, 2, 4],
+        "bagging_vote": [1, 2, 3],
+        "boosting_weight": [2, 4, 6],
+        "logistic_threshold": [0.3, 0.5, 0.7],
+        "regression_slope": [0.3, 0.6, 1.0],
+        "cv_fold": [3, 5, 6],
+        "gradient_lr": [0.1, 0.5, 1.2],
+        "precision_threshold": [1, 2, 3],
+        "support_threshold": [10, 25, 40],
+    }
+    label = EXPERIMENT_CONTROLS[exp][0]
+    result = []
+    for i, value in enumerate(scenarios[exp]):
+        if exp == "tree_cutoff":
+            task = f"Set the attendance threshold to {value}%. What will this student be predicted to do?"
+        elif exp == "knn_k":
+            task = f"Set k = {value}. Look only at the first {value} highlighted neighbour(s). Which class wins?"
+        elif exp == "neuron_weight":
+            task = f"Set w1 = {value}. After applying ReLU, is the neuron's output positive or zero?"
+        elif exp == "dropout":
+            task = f"Disable {value} of the 8 hidden neurons. How many remain active?"
+        elif exp == "bagging_vote":
+            task = f"Choose bootstrap sample {value}. What is the final majority vote from the three trees?"
+        elif exp == "boosting_weight":
+            task = f"Give learner A a weight of {value}. What is the combined weighted vote?"
+        elif exp == "logistic_threshold":
+            task = f"Set the classification cutoff to {value:.1f}. What label does the model assign?"
+        elif exp == "regression_slope":
+            task = f"Set the slope to {value:.1f}. Which range contains the predicted mark at 60% attendance?"
+        elif exp == "cv_fold":
+            task = f"Split the 60 records into {value} equal folds. How many records are in one validation fold?"
+        elif exp == "gradient_lr":
+            task = f"Set the learning rate to {value:.1f}. After one step, what happens to the loss?"
+        elif exp == "precision_threshold":
+            task = f"Choose threshold level {value}. Using the TP and FP counts in the graphic, what is the precision range?"
+        else:
+            task = f"Set minimum support to {value}%. Should the rule with 25% support be retained?"
+        result.append({"part": "ABC"[i], "control": value, "task": task,
+                       "correct": expected_for(question, value)})
+    return result
+
+
+def parts_answered(question, answer):
+    if not answer:
+        return 0
+    if question.get("experiment") and isinstance(answer, dict) and "parts" in answer:
+        return sum(bool(answer["parts"].get(s["part"])) for s in experiment_scenarios(question))
+    return 3 if question.get("experiment") else 1
+
+
+def question_marks(question, answer):
+    if not answer:
+        return 0
+    if question.get("experiment") and isinstance(answer, dict) and "parts" in answer:
+        return sum(answer["parts"].get(s["part"]) == s["correct"] for s in experiment_scenarios(question))
+    return int(is_correct(question, answer)) * (1 if not question.get("experiment") else 3)
+
+
+def maximum_marks(questions):
+    return sum(3 if q.get("experiment") else 1 for q in questions)
 
 
 def expected_for(question, control=None):
@@ -421,6 +499,8 @@ def expected_for(question, control=None):
 
 
 def is_correct(question, answer):
+    if question.get("experiment") and isinstance(answer, dict) and "parts" in answer:
+        return parts_answered(question, answer) == 3 and question_marks(question, answer) == 3
     raw = answer_value(answer)
     if question["kind"] == "short":
         return normalize(raw) in {normalize(x) for x in question["correct"]}
@@ -429,8 +509,8 @@ def is_correct(question, answer):
 
 
 def summary(questions, answers):
-    attempted = sum(bool(answers.get(q["id"])) for q in questions)
-    score = sum(is_correct(q, answers.get(q["id"], "")) for q in questions if answers.get(q["id"]))
+    attempted = sum(parts_answered(q, answers.get(q["id"])) == (3 if q.get("experiment") else 1) for q in questions)
+    score = sum(question_marks(q, answers.get(q["id"])) for q in questions)
     return attempted, score
 
 
@@ -481,9 +561,35 @@ def save_response(qid, key):
         st.session_state.save_error = "Autosave failed. Please retry this answer before leaving the page."
 
 
+def save_experiment_part(qid, part, key):
+    """Commit each dropdown independently into the existing JSONB answers field."""
+    a = st.session_state.attempt
+    if a.get("submitted_at"):
+        return
+    selected = st.session_state.get(key, "")
+    if not selected or selected == "Choose an answer":
+        return
+    q = next(q for q in st.session_state.questions if q["id"] == qid)
+    previous = (a.get("answers") or {}).get(qid) or {}
+    if previous and "parts" not in previous:
+        return  # Preserve responses from the earlier one-answer version.
+    parts = dict(previous.get("parts") or {})
+    if parts.get(part):
+        return
+    parts[part] = selected
+    updated = dict(a.get("answers") or {})
+    updated[qid] = {"parts": parts}
+    try:
+        persist(answers=updated)
+        st.session_state.save_error = ""
+    except Exception:
+        st.session_state.save_error = "Autosave failed. Your choice is still on screen; press Retry to save it."
+
+
 def save_control(qid, key):
     a = st.session_state.attempt
-    if a.get("submitted_at") or (a.get("answers") or {}).get(qid):
+    old = (a.get("answers") or {}).get(qid)
+    if a.get("submitted_at") or (old and not (isinstance(old, dict) and "parts" in old)):
         return
     states = dict(a.get("interaction_states") or {})
     states[qid] = st.session_state[key]
@@ -494,21 +600,33 @@ def save_control(qid, key):
         st.session_state.save_error = "Experiment setting was not saved. Please try adjusting the control again."
 
 
-def render_tree(cutoff, hours):
+def render_tree(cutoff, hours, attendance=None, study_hours=None):
+    show = attendance is not None and study_hours is not None
+    root_yes = show and attendance >= cutoff
+    last_yes = root_yes and study_hours >= hours
+    left_color = "#ef8d50" if show and not root_yes else "#9eb9c6"
+    right_color = "#248f7f" if root_yes else "#9eb9c6"
+    lower_no = "#ef8d50" if root_yes and not last_yes else "#9eb9c6"
+    lower_yes = "#248f7f" if last_yes else "#9eb9c6"
+    stroke_left = 7 if show and not root_yes else 3
+    stroke_right = 7 if root_yes else 3
     components.html(f"""
     <div style="padding:8px;background:#f5f9fb;border-radius:12px;max-width:620px;box-sizing:border-box">
     <svg viewBox="0 0 600 230" role="img" aria-label="Decision tree showing attendance and study hour thresholds"
          style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
-    <g stroke="#9eb9c6" stroke-width="3" fill="none"><path d="M300 52L145 105M300 52L445 105M445 142L365 190M445 142L530 190"/></g>
+    <g fill="none"><path d="M300 52L145 105" stroke="{left_color}" stroke-width="{stroke_left}"/>
+    <path d="M300 52L445 105" stroke="{right_color}" stroke-width="{stroke_right}"/>
+    <path d="M445 142L365 190" stroke="{lower_no}" stroke-width="{7 if root_yes and not last_yes else 3}"/>
+    <path d="M445 142L530 190" stroke="{lower_yes}" stroke-width="{7 if last_yes else 3}"/></g>
     <rect x="193" y="8" width="214" height="46" rx="12" fill="#1c6474"/>
     <text x="300" y="36" text-anchor="middle" fill="white" font-size="19">Attendance ≥ {cutoff}%?</text>
-    <rect x="85" y="105" width="120" height="45" rx="10" fill="#f4dcd8"/>
+    <rect x="85" y="105" width="120" height="45" rx="10" fill="{'#ef8d50' if show and not root_yes else '#f4dcd8'}"/>
     <text x="145" y="132" text-anchor="middle" fill="#7a4237" font-size="18">Fail</text>
     <rect x="349" y="103" width="192" height="46" rx="10" fill="#1c6474"/>
     <text x="445" y="132" text-anchor="middle" fill="white" font-size="18">Hours ≥ {hours}?</text>
-    <rect x="311" y="185" width="106" height="38" rx="10" fill="#f4dcd8"/>
+    <rect x="311" y="185" width="106" height="38" rx="10" fill="{'#ef8d50' if root_yes and not last_yes else '#f4dcd8'}"/>
     <text x="364" y="210" text-anchor="middle" fill="#7a4237" font-size="18">Fail</text>
-    <rect x="483" y="185" width="105" height="38" rx="10" fill="#d9f1e8"/>
+    <rect x="483" y="185" width="105" height="38" rx="10" fill="{'#80d9b5' if last_yes else '#d9f1e8'}"/>
     <text x="535" y="210" text-anchor="middle" fill="#176449" font-size="18">Pass</text>
     <text x="196" y="88" fill="#475569" font-size="14">No</text>
     <text x="386" y="87" fill="#475569" font-size="14">Yes</text>
@@ -539,7 +657,9 @@ def render_experiment(question, control):
     prm = question.get("params") or {}
     if exp == "tree_cutoff":
         st.caption(f"Student profile: attendance {prm['attendance']}%, study hours {prm['hours']}/week")
-        render_tree(int(control), prm["hours_min"])
+        render_tree(int(control), prm["hours_min"], prm["attendance"], prm["hours"])
+        predicted = expected_for(question, control)
+        st.markdown(f"**Current prediction: {predicted}**  ·  Follow the highlighted {'green' if predicted == 'Pass' else 'orange'} branch.")
         return
     if exp == "knn_k":
         body = visual_text(320,25,"Nearest neighbours, ordered by increasing distance",17)
@@ -681,10 +801,11 @@ def make_pdf(attempt, questions):
     answers = attempt.get("answers") or {}
     completed, score = summary(questions, answers)
     total = len(questions)
+    max_score = maximum_marks(questions)
     story = [p("MAC Week 5 — Model Detective Tutorial", "W5Title")]
     identity = [["Student", attempt["student_name"]], ["Student ID", attempt["student_id"]],
                 ["Duration", "90 minutes"], ["Submitted (UTC)", str(attempt.get("submitted_at") or "Not submitted")],
-                ["Result", f"{score}/{total} ({score/total*100:.1f}%) | {completed}/{total} answered"]]
+                ["Result", f"{score}/{max_score} ({score/max_score*100:.1f}%) | {completed}/{total} completed"]]
     t = Table([[p(a), p(b)] for a,b in identity], colWidths=[38*mm, 133*mm])
     t.setStyle(TableStyle([("BACKGROUND", (0,0),(-1,-1), colors.HexColor("#EDF5F6")),
                           ("VALIGN", (0,0),(-1,-1), "TOP"), ("LEFTPADDING",(0,0),(-1,-1),10),
@@ -692,13 +813,28 @@ def make_pdf(attempt, questions):
     story.extend([t, Spacer(1, 10), p("Automatically marked report. Review the feedback below.")])
     for q in questions:
         answer = answers.get(q["id"], "")
+        if q.get("experiment") and isinstance(answer, dict) and "parts" in answer:
+            earned = question_marks(q, answer)
+            block = [p(f"{q['id']} — {q['topic']}: {q['prompt']}", "W5Question"),
+                     p(f"Marks: {earned}/3")]
+            for scenario in experiment_scenarios(q):
+                part = scenario["part"]
+                given = answer["parts"].get(part, "Not answered")
+                correct_part = given == scenario["correct"]
+                block.extend([p(f"{part}. {scenario['task']}"),
+                              p(f"Your answer: {given} | {'Correct' if correct_part else 'Incorrect / missing'} | Mark: {int(correct_part)}/1"),
+                              p(f"Correct answer: {scenario['correct']}")])
+            block.append(p(f"Feedback: {q['explanation']}"))
+            story.append(KeepTogether(block))
+            continue
         correct = is_correct(q, answer) if answer else False
         answer_text = str(answer_value(answer)) if answer else "Not answered"
         control = answer.get("control") if isinstance(answer, dict) else None
         expected = (expected_for(q, control) if q["kind"] == "select"
                     else ", ".join(q["correct"]))
+        points = 3 if q.get("experiment") else 1
         block = [p(f"{q['id']} — {q['topic']}: {q['prompt']}", "W5Question"),
-                 p(f"Your answer: {answer_text}  |  {'Correct' if correct else 'Incorrect / missing'}  |  Mark: {int(correct)}/1"),
+                 p(f"Your answer: {answer_text}  |  {'Correct' if correct else 'Incorrect / missing'}  |  Mark: {int(correct)*points}/{points}"),
                  p(f"Correct answer: {expected}"), p(f"Feedback: {q['explanation']}")]
         if q.get("experiment"):
             label = EXPERIMENT_CONTROLS[q["experiment"]][0]
@@ -712,7 +848,7 @@ def make_pdf(attempt, questions):
 
 st.title("🧠 The Model Detective Challenge")
 st.caption("MAC | Week 5 — Classification, Prediction and Evaluation")
-st.write("Explore models, adjust the visual experiments, and answer 60 challenges. Your selections and experiment settings are saved as you go.")
+st.write("Work through 60 activities. In the interactive section, each experiment has three short questions. Your answers are marked and saved as you go.")
 
 if "attempt" not in st.session_state:
     with st.form("identity"):
@@ -755,9 +891,10 @@ if elapsed >= timedelta(minutes=LIMIT_MINUTES) and not attempt.get("submitted_at
 answers = attempt.get("answers") or {}
 answered, score = summary(qs, answers)
 total = len(qs)
+max_score = maximum_marks(qs)
 left, mid, right = st.columns(3)
 left.metric("Answered", f"{answered}/{total}")
-mid.metric("Current marks", f"{score}/{total}")
+mid.metric("Current marks", f"{score}/{max_score}")
 right.metric("Time remaining", "Submitted" if attempt.get("submitted_at") else str(remaining).split(".")[0])
 st.progress(answered/total, text=f"Progress: {answered} of {total} answered")
 
@@ -766,7 +903,7 @@ if st.session_state.save_error:
 
 if attempt.get("submitted_at"):
     st.success("Your tutorial is submitted. Download your feedback report and upload it to myTIMeS.")
-    st.metric("Final result", f"{score}/{total} ({score/total:.0%})")
+    st.metric("Final result", f"{score}/{max_score} ({score/max_score:.0%})")
     pdf = make_pdf(attempt, qs)
     st.download_button("⬇ Download My Marked PDF", data=pdf,
                        file_name=f"MAC_Week5_{attempt['student_id']}_Feedback.pdf",
@@ -774,7 +911,7 @@ if attempt.get("submitted_at"):
     with st.expander("See my answers and feedback"):
         for q in qs:
             chosen = answers.get(q["id"], "Not answered")
-            st.write(f"**{q['id']} ({q['topic']}):** {answer_value(chosen)} — {'✅' if is_correct(q, chosen) else '❌'}")
+            st.write(f"**{q['id']} ({q['topic']}):** {answer_value(chosen)} — {question_marks(q, chosen)}/{'3' if q.get('experiment') else '1'}")
             st.caption(q["explanation"])
     st.stop()
 
@@ -786,7 +923,7 @@ st.divider()
 st.subheader(f"Question {index + 1} of {total}")
 st.caption(q["topic"] + (" • Fix the wrong model" if q["kind"] == "short" else " • Select the best answer"))
 st.caption(f"Assigned student: {attempt['student_name']} | ID: {attempt['student_id']}")
-st.write(q["prompt"])
+st.markdown(f'<div class="teacher-question">{escape(q["prompt"])}</div>', unsafe_allow_html=True)
 if q["diagram"]:
     render_tree(*q["diagram"])
 
@@ -798,11 +935,59 @@ if q.get("experiment"):
         st.session_state[control_key] = (
             saved_answer.get("control") if isinstance(saved_answer, dict)
             else (attempt.get("interaction_states") or {}).get(q["id"], spec[4]))
+        if st.session_state[control_key] is None:
+            st.session_state[control_key] = spec[4]
+    legacy_answer = bool(saved_answer and not (isinstance(saved_answer, dict) and "parts" in saved_answer))
+    st.info("Try the slider to explore the diagram. Then answer parts A, B and C below. Each part is marked separately (1 mark each).")
     st.slider(spec[0], min_value=spec[1], max_value=spec[2], step=spec[3],
-              key=control_key, disabled=bool(saved_answer),
+              key=control_key, disabled=legacy_answer,
               on_change=save_control, args=(q["id"], control_key))
     render_experiment(q, st.session_state[control_key])
-    st.caption("Change the control and inspect the diagram BEFORE choosing an answer. The setting is saved with your response.")
+    st.caption("Use the slider to test each setting. Your answers refer to the exact values written below, not whichever value you leave on the slider.")
+
+    if not legacy_answer:
+        previous_parts = saved_answer.get("parts", {}) if isinstance(saved_answer, dict) else {}
+        for scenario in experiment_scenarios(q):
+            part = scenario["part"]
+            st.markdown(f'<div class="experiment-instruction"><b>Part {part}.</b> {escape(scenario["task"])}</div>', unsafe_allow_html=True)
+            part_key = f"week5_{attempt['student_id']}_{q['id']}_{part}"
+            if part_key not in st.session_state:
+                st.session_state[part_key] = previous_parts.get(part) or "Choose an answer"
+            st.selectbox(f"Answer for part {part}", ["Choose an answer"] + q["choices"],
+                         key=part_key, disabled=bool(previous_parts.get(part)),
+                         on_change=save_experiment_part, args=(q["id"], part, part_key))
+            if previous_parts.get(part):
+                if previous_parts[part] == scenario["correct"]:
+                    st.success(f"Part {part}: Correct — 1/1 mark saved")
+                else:
+                    st.info(f"Part {part}: Answer saved — 0/1 mark")
+        if st.session_state.save_error:
+            if st.button("↻ Retry saving selected answers"):
+                for scenario in experiment_scenarios(q):
+                    save_experiment_part(q["id"], scenario["part"], f"week5_{attempt['student_id']}_{q['id']}_{scenario['part']}")
+                st.rerun()
+        st.caption(f"This activity: {question_marks(q, answers.get(q['id']))}/3 marks. Your first saved choice for each part is final.")
+        st.divider()
+        back, next_col = st.columns(2)
+        with back:
+            if st.button("← Previous", disabled=index == 0, use_container_width=True):
+                st.session_state.current -= 1
+                st.rerun()
+        with next_col:
+            if st.button("Next →", disabled=index == total-1, use_container_width=True):
+                st.session_state.current += 1
+                st.rerun()
+        if answered == total:
+            st.success(f"All {total} activities are complete. You can submit your tutorial.")
+            if st.button("Submit Final Answers and Generate PDF", type="primary", use_container_width=True):
+                try:
+                    persist(finished=True)
+                    st.rerun()
+                except Exception:
+                    st.error("Final submission was not saved. Please try again.")
+        else:
+            st.caption(f"{total-answered} activities remaining. Finish every part A, B and C before final submission.")
+        st.stop()
 
 widget = f"week5_{attempt['student_id']}_{q['id']}"
 if widget not in st.session_state:
