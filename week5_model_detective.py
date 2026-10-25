@@ -656,7 +656,7 @@ def render_experiment(question, control):
     exp = question["experiment"]
     prm = question.get("params") or {}
     if exp == "tree_cutoff":
-        st.caption(f"Student profile: attendance {prm['attendance']}%, study hours {prm['hours']}/week")
+        st.markdown(f"### 👤 Student Profile: Attendance **{prm['attendance']}%** | Study Hours **{prm['hours']} hours/week**")
         render_tree(int(control), prm["hours_min"], prm["attendance"], prm["hours"])
         predicted = expected_for(question, control)
         st.markdown(f"**Current prediction: {predicted}**  ·  Follow the highlighted {'green' if predicted == 'Pass' else 'orange'} branch.")
