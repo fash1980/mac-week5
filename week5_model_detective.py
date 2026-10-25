@@ -31,7 +31,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 TITLE = "Week 5 | The Model Detective Challenge"
 TABLE = "mac_week5_tutorial_attempts"
 LIMIT_MINUTES = 90
-st.set_page_config(page_title=TITLE, page_icon="🧠", layout="wide")
+st.set_page_config(page_title=TITLE, page_icon="model_detective_icon.png", layout="wide")
 st.markdown("""
 <style>
 .block-container {max-width:1100px;padding-top:1.7rem}
@@ -846,7 +846,8 @@ def make_pdf(attempt, questions):
     return out.getvalue()
 
 
-st.title("🧠 The Model Detective Challenge")
+st.image("model_detective_icon.png", width=90)
+st.title("The Model Detective Challenge")
 st.caption("MAC | Week 5 — Classification, Prediction and Evaluation")
 st.write("Work through 60 activities. In the interactive section, each experiment has three short questions. Your answers are marked and saved as you go.")
 
