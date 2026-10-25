@@ -846,7 +846,7 @@ def make_pdf(attempt, questions):
     return out.getvalue()
 
 
-st.image("model_detective_icon.png", width=90)
+st.image("model.png", width=90)
 st.title("The Model Detective Challenge")
 st.caption("MAC | Week 5 — Classification, Prediction and Evaluation")
 st.write("Work through 60 activities. In the interactive section, each experiment has three short questions. Your answers are marked and saved as you go.")
